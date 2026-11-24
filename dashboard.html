@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIGVEE Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  margin: 0;
+  padding: 18px;
+  color: #18324d;
+}
+header {
+  background: #123c69;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+button {
+  background: #123c69;
+  color: white;
+  border: 0;
+  padding: 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+input, textarea, select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  margin: 7px 0 12px;
+  border: 1px solid #ccd5df;
+  border-radius: 7px;
+  background: white;
+}
+.card {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+.product {
+  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+}
+.product img {
+  width: 100px;
+  height: 85px;
+  object-fit: contain;
+}
+.danger { background: #b42318; }
+#message { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>BIGVEE MEDICAL STORES</h2>
+  <p>Administrator Dashboard</p>
+  <button id="logout">Log Out</button>
+</header>
+
+<div class="card">
+  <h3>Add New Product</h3>
+
+  <form id="productForm">
+    <input id="name" placeholder="Product name" required>
+
+    <textarea id="description"
+      placeholder="Product description"></textarea>
+
+    <input id="category"
+      placeholder="Category e.g. Hospital Beds" required>
+
+    <input id="price" type="number"
+      placeholder="Price in Naira" min="0" required>
+
+    <input id="image" type="url"
+      placeholder="Product image URL (optional)">
+
+    <button type="submit">Publish Product</button>
+  </form>
+
+  <p id="message"></p>
+</div>
+
+<div class="card">
+  <h3>Your Products</h3>
+  <div id="products">Loading products...</div>
+</div>
+
+<script>
+const db = window.supabase.createClient(
+  "https://mvrvbpdfoqvsyuibrwzs.supabase.co",
+  "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd"
+);
+
+let adminUser = null;
+
+async function startDashboard() {
+  const { data: sessionData } = await db.auth.getSession();
+  const session = sessionData.session;
+
+  if (!session) {
+    location.href = "admin.html";
+    return;
+  }
+
+  const { data: admin, error } = await db
+    .from("admin_users")
+    .select("role")
+    .eq("user_id", session.user.id)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (error || !admin) {
+    await db.auth.signOut();
+    alert("Administrator access required.");
+    location.href = "admin.html";
+    return;
+  }
+
+  adminUser = session.user;
+  loadProducts();
+}
+
+async function loadProducts() {
+  const container = document.getElementById("products");
+  container.textContent = "Loading...";
+
+  const { data, error } = await db
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    container.textContent = "Could not load products: " + error.message;
+    return;
+  }
+
+  container.replaceChildren();
+
+  if (!data || data.length === 0) {
+    container.textContent = "No products found.";
+    return;
+  }
+
+  data.forEach(product => {
+    const item = document.createElement("div");
+    item.className = "product";
+
+    const title = document.createElement("h4");
+    title.textContent = product.name;
+
+    const price = document.createElement("p");
+    price.textContent = "₦" + Number(product.price).toLocaleString();
+
+    const image = document.createElement("img");
+    image.src = product.image_url || "";
+    image.alt = product.name;
+    image.hidden = !product.image_url;
+
+    const edit = document.createElement("button");
+    edit.textContent = "Edit";
+    edit.onclick = () => editProduct(product);
+
+    const remove = document.createElement("button");
+    remove.textContent = "Delete";
+    remove.className = "danger";
+    remove.onclick = () => deleteProduct(product.id);
+
+    item.append(image, title, price, edit, remove);
+    container.appendChild(item);
+  });
+}
+
+document.getElementById("productForm").addEventListener("submit",
+async function(event) {
+  event.preventDefault();
+
+  const message = document.getElementById("message");
+  message.textContent = "Publishing...";
+
+  const product = {
+    name: document.getElementById("name").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    category: document.getElementById("category").value.trim(),
+    price: Number(document.getElementById("price").value),
+    image_url: document.getElementById("image").value.trim() || null,
+    is_available: true
+  };
+
+  const { error } = await db.from("products").insert(product);
+
+  if (error) {
+    message.textContent = "Error: " + error.message;
+    return;
+  }
+
+  message.textContent = "Product published successfully!";
+  this.reset();
+  loadProducts();
+});
+
+async function editProduct(product) {
+  const name = prompt("Product name:", product.name);
+  if (name === null || !name.trim()) return;
+
+  const price = prompt("Price in Naira:", product.price);
+  if (price === null || price.trim() === "" ||
+      !Number.isFinite(Number(price)) || Number(price) < 0) {
+    alert("Enter a valid price.");
+    return;
+  }
+
+  const { error } = await db.from("products")
+    .update({ name: name.trim(), price: Number(price) })
+    .eq("id", product.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  loadProducts();
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  const { error } = await db.from("products")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  loadProducts();
+}
+
+document.getElementById("logout").onclick = async () => {
+  await db.auth.signOut();
+  location.href = "admin.html";
+};
+
+startDashboard();
+</script>
+
+</body>
+</html>
