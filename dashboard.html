@@ -2,137 +2,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BIGVEE Admin Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f1f5f9;
-  margin: 0;
-  padding: 18px;
-  color: #18324d;
-}
-header {
-  background: #123c69;
-  color: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-button {
-  background: #123c69;
-  color: white;
-  border: 0;
-  padding: 12px;
-  border-radius: 7px;
-  cursor: pointer;
-  margin-top: 8px;
-}
-input, textarea, select {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 12px;
-  margin: 7px 0 12px;
-  border: 1px solid #ccd5df;
-  border-radius: 7px;
-  background: white;
-}
-.card {
-  background: white;
-  padding: 18px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-}
-.product {
-  border-bottom: 1px solid #ddd;
-  padding: 12px 0;
-}
-.product img {
-  width: 100px;
-  height: 85px;
-  object-fit: contain;
-}
-.danger { background: #b42318; }
-#message { font-size: 14px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIGVEE Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: Arial, sans-serif;
+      background: #f3f6f9;
+      color: #172033;
+    }
+    .container { max-width: 750px; margin: auto; }
+    header {
+      background: #073b2a;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0 0 6px; font-size: 23px; }
+    h2 { font-size: 19px; }
+    .panel {
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px #0000000c;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+    input, textarea {
+      border: 1px solid #ccd3dc;
+      background: white;
+    }
+    textarea { min-height: 85px; resize: vertical; }
+    button {
+      border: 0;
+      background: #087443;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; }
+    .logout { background: #555; }
+    .delete { background: #b42318; }
+    .edit { background: #2457a7; }
+    .product {
+      border: 1px solid #e0e5eb;
+      padding: 12px;
+      border-radius: 9px;
+      margin: 12px 0;
+    }
+    .product img {
+      width: 100%;
+      max-height: 210px;
+      object-fit: contain;
+      background: #f4f4f4;
+      border-radius: 7px;
+    }
+    #status { font-size: 14px; white-space: pre-wrap; }
+    .muted { color: #667085; font-size: 13px; }
+  </style>
 </head>
 <body>
+<div class="container">
+  <header>
+    <h1>BIGVEE Medical Stores</h1>
+    <p>Admin Dashboard</p>
+  </header>
 
-<header>
-  <h2>BIGVEE MEDICAL STORES</h2>
-  <p>Administrator Dashboard</p>
-  <button id="logout">Log Out</button>
-</header>
+  <section class="panel">
+    <h2>Add New Product</h2>
+    <form id="productForm">
+      <input id="name" placeholder="Product name" required>
+      <textarea id="description" placeholder="Product description"></textarea>
+      <input id="category" placeholder="Category (e.g. Hospital Beds)" required>
+      <input id="price" type="number" min="0" step="0.01" placeholder="Price in Naira" required>
 
-<div class="card">
-  <h3>Add New Product</h3>
+      <label for="imageFile"><strong>Choose product picture from Gallery</strong></label>
+      <input id="imageFile" type="file" accept="image/*" required>
+      <p class="muted">Choose an image from your phone. Maximum size: 5 MB.</p>
 
-  <form id="productForm">
-    <input id="name" placeholder="Product name" required>
+      <button id="saveButton" type="submit">Upload and Add Product</button>
+    </form>
+    <p id="status" aria-live="polite"></p>
+  </section>
 
-    <textarea id="description"
-      placeholder="Product description"></textarea>
+  <section class="panel">
+    <h2>Products in Your Store</h2>
+    <div id="products">Loading products...</div>
+  </section>
 
-    <input id="category"
-      placeholder="Category e.g. Hospital Beds" required>
-
-    <input id="price" type="number"
-      placeholder="Price in Naira" min="0" required>
-
-    <input id="image" type="url"
-      placeholder="Product image URL (optional)">
-
-    <button type="submit">Publish Product</button>
-  </form>
-
-  <p id="message"></p>
-</div>
-
-<div class="card">
-  <h3>Your Products</h3>
-  <div id="products">Loading products...</div>
+  <button class="logout" id="logoutButton">Log Out</button>
 </div>
 
 <script>
-const db = window.supabase.createClient(
-  "https://mvrvbpdfoqvsyuibrwzs.supabase.co",
-  "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd"
-);
+const SUPABASE_URL = "https://mvrvbpdfoqvsyuibrwzs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd";
+const BUCKET = "BIGVEE medical";
 
-let adminUser = null;
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function startDashboard() {
-  const { data: sessionData } = await db.auth.getSession();
-  const session = sessionData.session;
+const statusBox = document.getElementById("status");
+const form = document.getElementById("productForm");
+const saveButton = document.getElementById("saveButton");
+const productsBox = document.getElementById("products");
 
-  if (!session) {
+function showStatus(message) {
+  statusBox.textContent = message;
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+async function checkAdmin() {
+  const { data: sessionData, error: sessionError } =
+    await db.auth.getSession();
+
+  if (sessionError || !sessionData.session) {
     location.href = "admin.html";
-    return;
+    return false;
   }
 
   const { data: admin, error } = await db
     .from("admin_users")
     .select("role")
-    .eq("user_id", session.user.id)
-    .eq("role", "admin")
+    .eq("user_id", sessionData.session.user.id)
     .maybeSingle();
 
-  if (error || !admin) {
+  if (error || !admin || admin.role !== "admin") {
     await db.auth.signOut();
-    alert("Administrator access required.");
+    alert("Admin access not verified.");
     location.href = "admin.html";
-    return;
+    return false;
   }
 
-  adminUser = session.user;
-  loadProducts();
+  return true;
 }
 
 async function loadProducts() {
-  const container = document.getElementById("products");
-  container.textContent = "Loading...";
+  productsBox.textContent = "Loading products...";
 
   const { data, error } = await db
     .from("products")
@@ -140,119 +164,179 @@ async function loadProducts() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    container.textContent = "Could not load products: " + error.message;
+    productsBox.textContent = "Could not load products: " + error.message;
     return;
   }
-
-  container.replaceChildren();
 
   if (!data || data.length === 0) {
-    container.textContent = "No products found.";
+    productsBox.textContent = "No products added yet.";
     return;
   }
 
-  data.forEach(product => {
-    const item = document.createElement("div");
-    item.className = "product";
-
-    const title = document.createElement("h4");
-    title.textContent = product.name;
-
-    const price = document.createElement("p");
-    price.textContent = "₦" + Number(product.price).toLocaleString();
-
-    const image = document.createElement("img");
-    image.src = product.image_url || "";
-    image.alt = product.name;
-    image.hidden = !product.image_url;
-
-    const edit = document.createElement("button");
-    edit.textContent = "Edit";
-    edit.onclick = () => editProduct(product);
-
-    const remove = document.createElement("button");
-    remove.textContent = "Delete";
-    remove.className = "danger";
-    remove.onclick = () => deleteProduct(product.id);
-
-    item.append(image, title, price, edit, remove);
-    container.appendChild(item);
-  });
+  productsBox.innerHTML = data.map(product => `
+    <div class="product">
+      ${product.image_url ? `
+        <img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}">
+      ` : ""}
+      <h3>${escapeHTML(product.name)}</h3>
+      <p>${escapeHTML(product.description || "")}</p>
+      <p><strong>Category:</strong> ${escapeHTML(product.category || "")}</p>
+      <p><strong>Price:</strong> ₦${Number(product.price || 0).toLocaleString("en-NG")}</p>
+      <button class="edit" onclick="editProduct('${product.id}')">Edit Product</button>
+      <button class="delete" onclick="deleteProduct('${product.id}')">Delete Product</button>
+    </div>
+  `).join("");
 }
 
-document.getElementById("productForm").addEventListener("submit",
-async function(event) {
+form.addEventListener("submit", async function(event) {
   event.preventDefault();
 
-  const message = document.getElementById("message");
-  message.textContent = "Publishing...";
+  const name = document.getElementById("name").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const category = document.getElementById("category").value.trim();
+  const price = Number(document.getElementById("price").value);
+  const file = document.getElementById("imageFile").files[0];
 
-  const product = {
-    name: document.getElementById("name").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    category: document.getElementById("category").value.trim(),
-    price: Number(document.getElementById("price").value),
-    image_url: document.getElementById("image").value.trim() || null,
-    is_available: true
-  };
-
-  const { error } = await db.from("products").insert(product);
-
-  if (error) {
-    message.textContent = "Error: " + error.message;
+  if (!file) {
+    showStatus("Please choose a product picture.");
     return;
   }
 
-  message.textContent = "Product published successfully!";
-  this.reset();
-  loadProducts();
+  if (!file.type.startsWith("image/")) {
+    showStatus("Please choose a valid image.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    showStatus("Image is too large. Please choose an image under 5 MB.");
+    return;
+  }
+
+  if (!Number.isFinite(price) || price < 0) {
+    showStatus("Please enter a valid price.");
+    return;
+  }
+
+  saveButton.disabled = true;
+
+  try {
+    showStatus("Uploading picture...");
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const path = `${crypto.randomUUID()}-${safeName}`;
+
+    const { data: uploaded, error: uploadError } =
+      await db.storage.from(BUCKET).upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } =
+      db.storage.from(BUCKET).getPublicUrl(uploaded.path);
+
+    const { error: insertError } = await db
+      .from("products")
+      .insert([{
+        name,
+        description,
+        category,
+        price,
+        image_url: publicData.publicUrl,
+        is_available: true
+      }]);
+
+    if (insertError) throw insertError;
+
+    showStatus("Product uploaded successfully!");
+    form.reset();
+    await loadProducts();
+
+  } catch (error) {
+    showStatus("Error: " + error.message);
+  } finally {
+    saveButton.disabled = false;
+  }
 });
 
-async function editProduct(product) {
+async function editProduct(id) {
+  const { data: product, error } = await db
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !product) {
+    alert("Could not find this product.");
+    return;
+  }
+
   const name = prompt("Product name:", product.name);
-  if (name === null || !name.trim()) return;
+  if (name === null) return;
 
-  const price = prompt("Price in Naira:", product.price);
-  if (price === null || price.trim() === "" ||
-      !Number.isFinite(Number(price)) || Number(price) < 0) {
-    alert("Enter a valid price.");
+  const description = prompt("Description:", product.description || "");
+  if (description === null) return;
+
+  const category = prompt("Category:", product.category || "");
+  if (category === null) return;
+
+  const priceText = prompt("Price in Naira:", product.price);
+  if (priceText === null) return;
+
+  const price = Number(priceText);
+
+  if (!name.trim() || !category.trim() || !Number.isFinite(price) || price < 0) {
+    alert("Please enter a valid name, category and price.");
     return;
   }
 
-  const { error } = await db.from("products")
-    .update({ name: name.trim(), price: Number(price) })
-    .eq("id", product.id);
+  const { error: updateError } = await db
+    .from("products")
+    .update({
+      name: name.trim(),
+      description: description.trim(),
+      category: category.trim(),
+      price
+    })
+    .eq("id", id);
 
-  if (error) {
-    alert(error.message);
+  if (updateError) {
+    alert("Update failed: " + updateError.message);
     return;
   }
 
-  loadProducts();
+  alert("Product updated successfully.");
+  await loadProducts();
 }
 
 async function deleteProduct(id) {
   if (!confirm("Are you sure you want to delete this product?")) return;
 
-  const { error } = await db.from("products")
+  const { error } = await db
+    .from("products")
     .delete()
     .eq("id", id);
 
   if (error) {
-    alert(error.message);
+    alert("Delete failed: " + error.message);
     return;
   }
 
-  loadProducts();
+  alert("Product deleted.");
+  await loadProducts();
 }
 
-document.getElementById("logout").onclick = async () => {
+document.getElementById("logoutButton").addEventListener("click", async () => {
   await db.auth.signOut();
   location.href = "admin.html";
-};
+});
 
-startDashboard();
+(async function startDashboard() {
+  const allowed = await checkAdmin();
+  if (allowed) await loadProducts();
+})();
 </script>
-
 </body>
 </html>
