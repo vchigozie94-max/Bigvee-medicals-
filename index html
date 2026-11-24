@@ -1,1 +1,135 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIGVEE Medical Stores | Medical Equipment</title>
+<meta name="description" content="Shop hospital beds, wheelchairs, medical equipment and healthcare supplies at BIGVEE Medical Stores.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f8fa;color:#172b3a}
+header{background:#073b4c;color:white;padding:22px 6%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:bold;color:#38d9c5}
+header span{font-size:12px;display:block;color:white}
+nav a{color:white;text-decoration:none;margin:8px;font-size:14px}
+.hero{background:linear-gradient(120deg,#073b4c,#087e8b);color:white;padding:65px 7%;text-align:center}
+.hero h1{font-size:36px;margin:0 0 15px}
+.hero p{line-height:1.7}
+.btn{display:inline-block;background:#20c9a6;color:#062f35;padding:13px 22px;border-radius:7px;text-decoration:none;font-weight:bold;margin-top:12px}
+section{padding:38px 6%}
+h2{text-align:center;color:#073b4c}
+.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px}
+.category{background:white;padding:20px;text-align:center;border-radius:10px;box-shadow:0 2px 9px #0000000c;font-weight:bold}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.product{background:white;border-radius:10px;padding:20px;box-shadow:0 2px 10px #00000010}
+.product .symbol{font-size:43px;text-align:center;padding:15px}
+.product h3{color:#073b4c}
+.product p{color:#64748b;font-size:14px}
+.product a{display:block;text-align:center;background:#087e8b;color:white;padding:11px;text-decoration:none;border-radius:6px}
+.about{background:#e5f4f2;text-align:center;line-height:1.8}
+footer{background:#073b4c;color:white;text-align:center;padding:28px 15px;font-size:14px}
+footer a{color:#38d9c5}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">BIGVEE <span>MEDICAL STORES</span></div>
+<nav>
+<a href="#home">Home</a>
+<a href="#products">Products</a>
+<a href="#about">About</a>
+<a href="#contact">Contact</a>
+</nav>
+</header>
+
+<div class="hero" id="home">
+<h1>Your Trusted Medical Equipment Store</h1>
+<p>Quality medical equipment, hospital supplies and healthcare products.</p>
+<a class="btn" href="#products">Explore Products</a>
+</div>
+
+<section>
+<h2>Our Categories</h2>
+<div class="categories">
+<div class="category">🛏️ Hospital Beds</div>
+<div class="category">♿ Wheelchairs</div>
+<div class="category">🩺 Medical Instruments</div>
+<div class="category">🩹 Medical Consumables</div>
+<div class="category">💓 Monitoring Devices</div>
+<div class="category">🏥 Hospital Furniture</div>
+</div>
+</section>
+
+<section id="products">
+<h2>Featured Products</h2>
+<div class="products">
+
+<div class="product">
+<div class="symbol">🛏️</div>
+<h3>Hospital Beds</h3>
+<p>Manual and adjustable hospital beds.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20hospital%20beds.">Request Price</a>
+</div>
+
+<div class="product">
+<div class="symbol">♿</div>
+<h3>Wheelchairs</h3>
+<p>Mobility and patient transport solutions.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20wheelchairs.">Request Price</a>
+</div>
+
+<div class="product">
+<div class="symbol">🩺</div>
+<h3>Blood Pressure Monitors</h3>
+<p>Blood pressure monitoring equipment.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20BP%20monitors.">Request Price</a>
+</div>
+
+<div class="product">
+<div class="symbol">💓</div>
+<h3>Pulse Oximeters</h3>
+<p>Equipment for oxygen saturation monitoring.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20pulse%20oximeters.">Request Price</a>
+</div>
+
+<div class="product">
+<div class="symbol">🌬️</div>
+<h3>Nebulizers</h3>
+<p>Respiratory care equipment.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20nebulizers.">Request Price</a>
+</div>
+
+<div class="product">
+<div class="symbol">🏥</div>
+<h3>Medical Consumables</h3>
+<p>Gloves, cannulas, syringes and other supplies.</p>
+<a href="https://wa.me/2348108871435?text=Hello%20BIGVEE%2C%20I%20want%20to%20enquire%20about%20medical%20consumables.">Request Price</a>
+</div>
+
+</div>
+</section>
+
+<section class="about" id="about">
+<h2>About BIGVEE Medical Stores</h2>
+<p>BIGVEE Medical Stores is dedicated to supplying medical equipment, hospital furniture and healthcare essentials. We aim to make quality medical supplies accessible to healthcare providers and individuals.</p>
+</section>
+
+<section id="contact">
+<h2>Contact BIGVEE</h2>
+<p style="text-align:center">Need a quotation or want to place an order?</p>
+<div style="text-align:center">
+<a class="btn" href="https://wa.me/2348108871435">Chat with us on WhatsApp</a>
+</div>
+</section>
+
+<footer>
+<strong>BIGVEE MEDICAL STORES</strong>
+<p>Quality Medical Equipment & Healthcare Supplies</p>
+<p>© 2026 BIGVEE Medical Stores. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
