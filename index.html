@@ -132,5 +132,84 @@ footer a{color:#38d9c5}
 <p>© 2026 BIGVEE Medical Stores. All rights reserved.</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://mvrvbpdfoqvsyuibrwzs.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function loadProducts() {
+  const container = document.querySelector(".products");
+
+  const { data, error } = await db
+    .from("products")
+    .select("id,name,description,category,price,image_url")
+    .eq("is_available", true);
+
+  if (error) {
+    console.error("BIGVEE database error:", error.message);
+    return;
+  }
+
+  container.replaceChildren();
+
+  if (!data || data.length === 0) {
+    container.textContent = "New products coming soon.";
+    return;
+  }
+
+  data.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "product";
+
+    if (product.image_url) {
+      const img = document.createElement("img");
+      img.src = product.image_url;
+      img.alt = product.name;
+      img.style.width = "100%";
+      img.style.borderRadius = "8px";
+      card.appendChild(img);
+    } else {
+      const symbol = document.createElement("div");
+      symbol.className = "symbol";
+      symbol.textContent = "🏥";
+      card.appendChild(symbol);
+    }
+
+    const name = document.createElement("h3");
+    name.textContent = product.name;
+    card.appendChild(name);
+
+    const description = document.createElement("p");
+    description.textContent = product.description || "";
+    card.appendChild(description);
+
+    if (product.price !== null) {
+      const price = document.createElement("p");
+      price.textContent = "₦" + Number(product.price).toLocaleString("en-NG");
+      card.appendChild(price);
+    }
+
+    const order = document.createElement("a");
+    order.href = "https://wa.me/2348108871435?text=" +
+      encodeURIComponent("Hello BIGVEE, I want to enquire about " + product.name);
+    order.textContent = "Request Price";
+    card.appendChild(order);
+
+    container.appendChild(card);
+  });
+}
+
+loadProducts();
+</script>
+</body>
+</html>
+
 </body>
 </html> 
