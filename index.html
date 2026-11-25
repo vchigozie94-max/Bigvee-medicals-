@@ -4,172 +4,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIGVEE Medical Stores | Medical Equipment & Supplies</title>
-<meta name="description" content="Explore hospital beds, orthopaedic supports and medical equipment at BIGVEE Medical Stores. Browse products and order through WhatsApp.">
+<title>BIGVEE Medical Stores | Medical Equipment</title>
+<meta name="description" content="Explore medical equipment, hospital beds and healthcare supplies at BIGVEE Medical Stores.">
 <meta name="theme-color" content="#073b2a">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --green: #087443;
-  --dark: #073b2a;
-  --deep: #052e22;
-  --light: #e8f4ee;
-  --background: #f5f8f6;
-  --text: #20342b;
-  --muted: #66756d;
-  --white: #ffffff;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
 
 body {
   font-family: Arial, sans-serif;
-  background: var(--background);
-  color: var(--text);
+  background: #f5f8f6;
+  color: #24372d;
   line-height: 1.55;
 }
 
-a { text-decoration: none; }
-
 header {
-  background: var(--dark);
+  background: #073b2a;
   color: white;
-  padding: 19px 15px;
   text-align: center;
+  padding: 22px 12px;
 }
 
 .logo {
-  font-size: 31px;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: 2px;
 }
 
-.brand-subtitle {
+.brand-name {
   font-size: 13px;
   letter-spacing: 2px;
-  margin-top: 2px;
 }
 
 .tagline {
-  margin-top: 6px;
+  margin-top: 7px;
+  color: #d9e9df;
   font-size: 14px;
-  color: #d7e9df;
 }
 
 nav {
-  background: var(--deep);
+  background: #052e22;
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 26px;
-  padding: 13px;
+  gap: 25px;
+  padding: 14px 8px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 5;
 }
 
 nav a {
   color: white;
   font-size: 14px;
   font-weight: bold;
+  text-decoration: none;
 }
-
-nav a:hover { color: #a8e5c4; }
 
 .hero {
   background: linear-gradient(120deg, #073b2a, #087443);
   color: white;
-  padding: 68px 20px;
   text-align: center;
+  padding: 65px 18px;
 }
 
-.hero-content {
-  max-width: 760px;
+.hero-inner {
+  max-width: 750px;
   margin: auto;
-}
-
-.hero-label {
-  display: inline-block;
-  background: #ffffff1c;
-  border: 1px solid #ffffff40;
-  padding: 7px 13px;
-  border-radius: 30px;
-  font-size: 12px;
-  margin-bottom: 19px;
 }
 
 .hero h1 {
-  font-size: clamp(30px, 5vw, 48px);
-  line-height: 1.15;
-  margin-bottom: 18px;
+  font-size: clamp(29px, 5vw, 44px);
+  line-height: 1.2;
+  margin-bottom: 17px;
 }
 
 .hero p {
-  max-width: 600px;
+  max-width: 590px;
   margin: auto;
-  color: #e3f1e9;
+  color: #e5f2e9;
   font-size: 16px;
 }
 
-.hero-button {
+.hero a {
   display: inline-block;
+  margin-top: 24px;
+  padding: 14px 24px;
   background: white;
-  color: var(--dark);
-  padding: 14px 25px;
+  color: #073b2a;
   border-radius: 7px;
-  margin-top: 25px;
   font-weight: bold;
+  text-decoration: none;
 }
 
-.hero-button:hover { background: #e7f4eb; }
-
-.trust-strip {
-  background: white;
+.trust {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 17px 12px;
-  border-bottom: 1px solid #e5ece7;
-}
-
-.trust-item {
-  color: var(--dark);
+  background: white;
+  padding: 17px 10px;
+  color: #073b2a;
   font-size: 13px;
   font-weight: bold;
 }
 
 .container {
-  max-width: 1120px;
-  padding: 48px 16px;
+  max-width: 1100px;
   margin: auto;
+  padding: 42px 15px;
 }
 
-.section-heading {
+.heading {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 23px;
 }
 
-.section-heading h2 {
-  color: var(--dark);
+.heading h2 {
+  color: #073b2a;
   font-size: 27px;
-  margin-bottom: 6px;
 }
 
-.section-heading p {
-  color: var(--muted);
+.heading p {
+  color: #68776e;
   font-size: 14px;
+  margin-top: 5px;
 }
 
-.category-list {
+.search {
+  display: block;
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto 20px;
+  padding: 14px;
+  border: 1px solid #cbd8d0;
+  border-radius: 8px;
+  background: white;
+  font-size: 15px;
+}
+
+.categories {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -177,199 +154,171 @@ nav a:hover { color: #a8e5c4; }
   margin-bottom: 22px;
 }
 
-.category-button {
-  border: 1px solid #cbd9d0;
-  color: var(--dark);
-  background: white;
+.category-btn {
+  padding: 9px 14px;
   border-radius: 25px;
-  padding: 9px 15px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.category-button.active,
-.category-button:hover {
-  background: var(--green);
-  color: white;
-  border-color: var(--green);
-}
-
-.search {
-  display: block;
-  width: 100%;
-  max-width: 540px;
-  margin: 0 auto 25px;
-  padding: 14px 16px;
   border: 1px solid #cbd8d0;
-  border-radius: 8px;
-  font-size: 15px;
   background: white;
-  outline-color: var(--green);
+  color: #073b2a;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.category-btn.active {
+  background: #087443;
+  color: white;
+  border-color: #087443;
 }
 
 .products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
-  gap: 19px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 17px;
 }
 
 .product-card {
+  background: white;
+  border: 1px solid #e1e9e3;
+  border-radius: 11px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #e5ece7;
-  box-shadow: 0 3px 12px #0000000a;
-  transition: transform .2s, box-shadow .2s;
-}
-
-.product-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 18px #00000012;
+  box-shadow: 0 3px 10px #0000000b;
 }
 
 .product-card img {
   width: 100%;
-  height: 190px;
+  height: 185px;
   object-fit: contain;
   background: #f1f5f2;
 }
 
 .product-info {
-  padding: 14px;
+  padding: 13px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .product-info h3 {
+  color: #073b2a;
   font-size: 16px;
-  color: var(--dark);
   line-height: 1.35;
   margin-bottom: 7px;
 }
 
 .product-category {
-  color: var(--muted);
+  color: #68776e;
   font-size: 12px;
   margin-bottom: 8px;
 }
 
 .product-description {
-  color: #59675f;
   font-size: 13px;
-  margin-bottom: 13px;
+  color: #58665e;
+  margin-bottom: 12px;
 }
 
-.product-price {
-  color: var(--green);
+.price {
+  font-size: 18px;
+  color: #087443;
   font-weight: bold;
-  font-size: 19px;
   margin-top: auto;
-  margin-bottom: 13px;
+  margin-bottom: 12px;
 }
 
-.order-button {
+.order {
   display: block;
-  text-align: center;
   padding: 12px;
-  background: var(--green);
+  background: #087443;
   color: white;
   border-radius: 7px;
-  font-weight: bold;
+  text-align: center;
   font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-.order-button:hover { background: var(--dark); }
+.order:hover { background: #073b2a; }
 
-.empty {
+.message {
   text-align: center;
-  padding: 30px 15px;
-  color: var(--muted);
+  padding: 28px 12px;
+  color: #58665e;
   grid-column: 1 / -1;
 }
 
-.featured-section {
-  background: #edf5f0;
+.about {
+  background: #eaf4ee;
 }
 
 .about-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  align-items: stretch;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
 }
 
 .about-card {
   background: white;
-  border-radius: 12px;
-  padding: 25px;
-  border: 1px solid #e2ebe5;
+  padding: 23px;
+  border-radius: 10px;
 }
 
 .about-card h3 {
-  color: var(--dark);
-  font-size: 19px;
-  margin-bottom: 11px;
+  color: #073b2a;
+  margin-bottom: 10px;
 }
 
-.about-card p {
-  color: #5d6b63;
+.about-card p,
+.about-card li {
+  color: #58665e;
   font-size: 14px;
 }
 
-.about-card ul {
-  padding-left: 19px;
-  color: #52645a;
-  font-size: 14px;
-}
-
-.about-card li { margin: 8px 0; }
+.about-card ul { padding-left: 19px; }
+.about-card li { margin: 7px 0; }
 
 .contact {
-  background: var(--light);
+  background: #e5f2eb;
   text-align: center;
-  padding: 43px 17px;
+  padding: 40px 15px;
 }
 
 .contact h2 {
-  color: var(--dark);
+  color: #073b2a;
   font-size: 26px;
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 
 .contact p {
-  color: #586b60;
-  margin-bottom: 20px;
+  color: #58665e;
+  margin-bottom: 18px;
 }
 
-.contact-button {
+.contact a {
   display: inline-block;
-  background: var(--green);
+  background: #087443;
   color: white;
-  padding: 13px 23px;
+  padding: 13px 22px;
   border-radius: 7px;
+  text-decoration: none;
   font-weight: bold;
 }
 
 footer {
-  background: var(--deep);
+  background: #052e22;
   color: white;
   text-align: center;
-  padding: 24px 14px;
+  padding: 23px 12px;
   font-size: 13px;
 }
 
-footer p { margin-top: 5px; color: #d4e4da; }
-
-footer a { color: white; }
+footer p { margin-top: 5px; }
 
 @media(max-width: 520px) {
-  .hero { padding: 52px 18px; }
-  .hero h1 { font-size: 29px; }
+  .hero { padding: 50px 17px; }
 
-  .container { padding: 38px 13px; }
+  .hero h1 { font-size: 29px; }
 
   .products {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -377,13 +326,18 @@ footer a { color: white; }
   }
 
   .product-card img { height: 145px; }
-  .product-info { padding: 11px; }
+
+  .product-info { padding: 10px; }
+
   .product-info h3 { font-size: 14px; }
+
   .product-description { font-size: 12px; }
-  .product-price { font-size: 16px; }
+
+  .price { font-size: 16px; }
 
   .about-grid { grid-template-columns: 1fr; }
-  nav { gap: 19px; }
+
+  nav { gap: 17px; }
 }
 
 @media(max-width: 340px) {
@@ -396,46 +350,39 @@ footer a { color: white; }
 
 <header id="home">
   <div class="logo">BIGVEE</div>
-  <div class="brand-subtitle">MEDICAL STORES</div>
+  <div class="brand-name">MEDICAL STORES</div>
   <p class="tagline">Your Trusted Medical Equipment Supplier</p>
 </header>
 
 <nav>
   <a href="#home">Home</a>
   <a href="#products">Products</a>
-  <a href="#about">About Us</a>
+  <a href="#about">About</a>
   <a href="#contact">Contact</a>
 </nav>
 
 <section class="hero">
-  <div class="hero-content">
-    <span class="hero-label">BIGVEE MEDICAL STORES</span>
+  <div class="hero-inner">
     <h1>Medical Equipment for Better Healthcare</h1>
     <p>
-      Explore hospital beds, orthopaedic supports and
-      essential medical equipment. Browse our products
-      and contact us directly to place an order.
+      Discover hospital beds, orthopaedic supports and
+      essential healthcare equipment at BIGVEE Medical Stores.
+      Browse our products and contact us to order.
     </p>
-    <a href="#products" class="hero-button">Explore Our Products</a>
+    <a href="#products">Explore Our Products</a>
   </div>
 </section>
 
-<section class="trust-strip">
-  <div class="trust-item">✓ Easy WhatsApp Ordering</div>
-  <div class="trust-item">✓ Product Information</div>
-  <div class="trust-item">✓ Direct Customer Support</div>
-</section>
-
-<main>
+<div class="trust">
+  <span>✓ Easy WhatsApp Ordering</span>
+  <span>✓ Product Information</span>
+  <span>✓ Direct Customer Support</span>
+</div>
 
 <section class="container" id="products">
-  <div class="section-heading">
-    <h2>Explore Our Products</h2>
-    <p>Browse medical equipment and healthcare supplies</p>
-  </div>
-
-  <div id="categories" class="category-list">
-    <button class="category-button active" data-category="all">All Products</button>
+  <div class="heading">
+    <h2>Our Medical Products</h2>
+    <p>Explore available medical equipment and supplies</p>
   </div>
 
   <input
@@ -446,35 +393,42 @@ footer a { color: white; }
     aria-label="Search products"
   >
 
+  <div class="categories" id="categories">
+    <button class="category-btn active" data-category="all">
+      All Products
+    </button>
+  </div>
+
   <div class="products" id="productsList">
-    <div class="empty">Loading BIGVEE products...</div>
+    <div class="message">Connecting to BIGVEE products...</div>
   </div>
 </section>
 
-<section class="featured-section" id="about">
+<section class="about" id="about">
   <div class="container">
-    <div class="section-heading">
+    <div class="heading">
       <h2>About BIGVEE Medical Stores</h2>
-      <p>Making medical equipment easier to discover and order</p>
+      <p>Medical equipment and healthcare supplies</p>
     </div>
 
     <div class="about-grid">
       <div class="about-card">
         <h3>Who We Are</h3>
         <p>
-          BIGVEE Medical Stores is a medical equipment
-          and healthcare supplies business. We provide
-          customers with a convenient way to explore
-          available products and make enquiries directly.
+          BIGVEE Medical Stores provides a convenient
+          online catalogue of medical equipment and
+          healthcare supplies. Customers can explore
+          available products and contact us directly
+          for enquiries and orders.
         </p>
       </div>
 
       <div class="about-card">
         <h3>Why Choose BIGVEE?</h3>
         <ul>
-          <li>Browse products and prices online.</li>
-          <li>View product pictures and descriptions.</li>
-          <li>Send enquiries directly through WhatsApp.</li>
+          <li>Browse product pictures and prices.</li>
+          <li>Search available medical equipment.</li>
+          <li>Contact us directly through WhatsApp.</li>
           <li>Get assistance with product enquiries.</li>
         </ul>
       </div>
@@ -484,21 +438,12 @@ footer a { color: white; }
 
 <section class="contact" id="contact">
   <h2>Need Medical Equipment?</h2>
-  <p>
-    Contact BIGVEE Medical Stores for product enquiries
-    and orders through WhatsApp.
-  </p>
-  <a
-    class="contact-button"
-    href="https://wa.me/2348108871435"
-    target="_blank"
-    rel="noopener"
-  >
+  <p>Contact BIGVEE Medical Stores directly on WhatsApp.</p>
+  <a href="https://wa.me/2348108871435"
+     target="_blank" rel="noopener">
     Chat With BIGVEE on WhatsApp
   </a>
 </section>
-
-</main>
 
 <footer>
   <strong>BIGVEE MEDICAL STORES</strong>
@@ -508,7 +453,7 @@ footer a { color: white; }
 
 <script>
 const SUPABASE_URL = "https://mvrvbpdfoqvsyuibrwzs.supabase.co";
-const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX-L-DEd";
+const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd";
 const WHATSAPP_NUMBER = "2348108871435";
 
 const db = window.supabase.createClient(
@@ -540,39 +485,44 @@ function formatPrice(price) {
   return "₦" + Number(price || 0).toLocaleString("en-NG");
 }
 
+function showMessage(message) {
+  productsList.innerHTML =
+    '<div class="message">' + escapeHTML(message) + '</div>';
+}
+
 function renderCategories() {
-  const categoryNames = [
+  const names = [
     ...new Set(
       allProducts
-        .map(p => p.category)
+        .map(product => product.category)
         .filter(Boolean)
     )
   ].sort();
 
   categoriesBox.innerHTML = `
     <button
-      class="category-button ${activeCategory === "all" ? "active" : ""}"
+      class="category-btn ${activeCategory === "all" ? "active" : ""}"
       data-category="all"
     >All Products</button>
-    ${categoryNames.map(category => `
+
+    ${names.map(name => `
       <button
-        class="category-button ${activeCategory === category ? "active" : ""}"
-        data-category="${escapeHTML(category)}"
-      >${escapeHTML(category)}</button>
+        class="category-btn ${activeCategory === name ? "active" : ""}"
+        data-category="${escapeHTML(name)}"
+      >${escapeHTML(name)}</button>
     `).join("")}
   `;
 }
 
 function renderProducts(products) {
   if (!products.length) {
-    productsList.innerHTML =
-      '<div class="empty">No matching products found.</div>';
+    showMessage("No products found in this selection.");
     return;
   }
 
   productsList.innerHTML = products.map(product => {
     const message =
-      "Hello BIGVEE Medical Stores, I want to enquire about:\n" +
+      "Hello BIGVEE Medical Stores, I am interested in:\n" +
       "Product: " + product.name + "\n" +
       "Price: " + formatPrice(product.price);
 
@@ -582,6 +532,7 @@ function renderProducts(products) {
 
     return `
       <article class="product-card">
+
         ${product.image_url ? `
           <img
             src="${escapeHTML(product.image_url)}"
@@ -602,14 +553,14 @@ function renderProducts(products) {
             ${escapeHTML(product.description || "")}
           </p>
 
-          <p class="product-price">${formatPrice(product.price)}</p>
+          <p class="price">${formatPrice(product.price)}</p>
 
           <a
-            class="order-button"
+            class="order"
             href="${whatsappLink}"
             target="_blank"
             rel="noopener"
-          >Enquire on WhatsApp</a>
+          >Order on WhatsApp</a>
         </div>
       </article>
     `;
@@ -624,18 +575,19 @@ function applyFilters() {
       activeCategory === "all" ||
       product.category === activeCategory;
 
-    const matchesSearch =
-      (product.name || "").toLowerCase().includes(term) ||
-      (product.category || "").toLowerCase().includes(term) ||
-      (product.description || "").toLowerCase().includes(term);
+    const searchableText = [
+      product.name,
+      product.category,
+      product.description
+    ].join(" ").toLowerCase();
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && searchableText.includes(term);
   });
 
   renderProducts(filtered);
 }
 
-categoriesBox.addEventListener("click", function(event) {
+categoriesBox.addEventListener("click", event => {
   const button = event.target.closest("button[data-category]");
   if (!button) return;
 
@@ -647,25 +599,35 @@ categoriesBox.addEventListener("click", function(event) {
 searchInput.addEventListener("input", applyFilters);
 
 async function loadProducts() {
-  productsList.innerHTML =
-    '<div class="empty">Loading BIGVEE products...</div>';
+  showMessage("Connecting to BIGVEE products...");
 
-  const { data, error } = await db
-    .from("products")
-    .select("id,name,description,category,price,image_url,is_available")
-    .eq("is_available", true)
-    .order("created_at", { ascending: false });
+  try {
+    const { data, error } = await db
+      .from("products")
+      .select("id,name,description,category,price,image_url,is_available")
+      .eq("is_available", true)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Product loading error:", error.message);
-    productsList.innerHTML =
-      '<div class="empty">Products could not load. Please refresh the page.</div>';
-    return;
+    if (error) {
+      console.error("Supabase product error:", error);
+      showMessage("Products could not load: " + error.message);
+      return;
+    }
+
+    allProducts = data || [];
+
+    if (allProducts.length === 0) {
+      showMessage("No available products were returned. Please check product availability and database permissions.");
+      return;
+    }
+
+    renderCategories();
+    applyFilters();
+
+  } catch (error) {
+    console.error("Website error:", error);
+    showMessage("Connection problem. Please refresh the page.");
   }
-
-  allProducts = data || [];
-  renderCategories();
-  applyFilters();
 }
 
 loadProducts();
@@ -673,4 +635,3 @@ loadProducts();
 
 </body>
 </html>
- 
