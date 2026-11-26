@@ -3,8 +3,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIGVEE Medical Stores | Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIGVEE Medical Stores Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
@@ -12,30 +12,36 @@ body{margin:0;background:#f3f6fa;color:#172033;font-family:Arial,sans-serif}
 header{background:#082c4c;color:white;padding:18px}
 header h2{margin:0}
 header p{margin:6px 0 0;color:#d5e7f5}
-main{max-width:1100px;margin:auto;padding:16px}
-.panel{background:white;padding:18px;border-radius:12px;margin:15px 0;box-shadow:0 2px 10px #0000000b}
+main{max-width:1100px;margin:auto;padding:15px}
+.panel{background:white;padding:17px;border-radius:12px;margin:14px 0;box-shadow:0 2px 10px #0000000b}
 h3{margin-top:0;color:#082c4c}
-input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #ccd5df;border-radius:7px;font-size:15px}
+input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #ccd5df;border-radius:7px;font-size:15px;background:white}
 textarea{min-height:80px}
 button{border:0;border-radius:7px;padding:11px 15px;background:#0876bd;color:white;font-weight:bold;cursor:pointer;margin:4px}
 button.secondary{background:#526477}
 button.danger{background:#c62828}
-button:disabled{opacity:.6}
+button:disabled{opacity:.55}
 .hidden{display:none!important}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
 .tab.active{background:#082c4c}
-.card{border:1px solid #e0e6ed;border-radius:10px;padding:14px;margin:12px 0}
+.card{border:1px solid #e0e6ed;border-radius:10px;padding:14px;margin:12px 0;overflow:hidden}
 .card img{width:85px;height:85px;object-fit:contain;background:#f5f7f9;border-radius:7px;float:right}
 .muted{color:#64748b;font-size:13px}
 .status{font-weight:bold;color:#0876bd}
-.row{display:flex;gap:10px;flex-wrap:wrap}
+.warning{color:#a65a00;background:#fff2d8;padding:8px;border-radius:6px}
+.good{color:#17652c}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .row>*{flex:1;min-width:130px}
-.notice{padding:10px;background:#edf6ff;border-radius:7px;margin:10px 0}
 label{font-weight:bold;font-size:14px}
 #message{padding:10px;border-radius:7px;margin:10px 0;display:none}
 #message.error{display:block;background:#ffeded;color:#a00000}
 #message.success{display:block;background:#e7f8ec;color:#17652c}
-@media(max-width:600px){main{padding:10px}.panel{padding:14px}}
+.inline-check{display:flex;align-items:center;gap:8px;margin:8px 0 14px}
+.inline-check input{width:auto;margin:0}
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:15px}
+.pagination span{font-size:13px;color:#526477}
+.small{font-size:13px}
+@media(max-width:600px){main{padding:9px}.panel{padding:13px}}
 </style>
 </head>
 <body>
@@ -64,7 +70,7 @@ label{font-weight:bold;font-size:14px}
       <div class="row">
         <div>
           <h3>Welcome, BIGVEE Admin</h3>
-          <p class="muted">Manage your products and customer orders.</p>
+          <p class="muted">Manage products, stock and customer orders.</p>
         </div>
         <div style="text-align:right">
           <button class="secondary" id="logoutButton">Log out</button>
@@ -93,28 +99,51 @@ label{font-weight:bold;font-size:14px}
           <label>Price (₦)</label>
           <input id="productPrice" type="number" min="0" step="0.01" required placeholder="Enter price">
 
+          <label>Fulfilment type</label>
+          <select id="fulfillmentType">
+            <option value="stock">In Stock</option>
+            <option value="on_request">Order on Request</option>
+          </select>
+
+          <label>Stock quantity</label>
+          <input id="stockQuantity" type="number" min="0" step="1" value="0" required>
+
+          <label>Low-stock warning level</label>
+          <input id="lowStockAlert" type="number" min="0" step="1" value="5" required>
+
           <label>Product image</label>
           <input id="productImage" type="file" accept="image/png,image/jpeg,image/webp">
-          <p class="muted">Choose a JPG, PNG or WebP image. You can leave this empty when editing to keep the existing image.</p>
+          <p class="muted">JPG, PNG or WebP. Maximum 5 MB. Leave empty when editing to keep the current image.</p>
 
-          <label>
-            <input id="productAvailable" type="checkbox" checked style="width:auto;margin-right:7px">
-            Product is available on the website
+          <label class="inline-check">
+            <input id="productAvailable" type="checkbox" checked>
+            Show this product on the website
           </label>
 
-          <div style="margin-top:15px">
-            <button id="saveProductButton" type="submit">Save Product</button>
-            <button id="cancelEditButton" class="secondary hidden" type="button">Cancel Edit</button>
-          </div>
+          <button id="saveProductButton" type="submit">Save Product</button>
+          <button id="cancelEditButton" class="secondary hidden" type="button">Cancel Edit</button>
         </form>
       </div>
 
       <div class="panel">
-        <div class="row">
-          <h3>Product Catalogue</h3>
-          <button id="refreshProducts" class="secondary">Refresh Products</button>
-        </div>
+        <h3>Product Catalogue</h3>
+
+        <label>Search products</label>
+        <input id="productSearch" type="search" placeholder="Search by product name or description">
+
+        <label>Filter by category</label>
+        <select id="categoryFilter">
+          <option value="">All categories</option>
+        </select>
+
+        <div id="stockSummary" class="notice muted">Loading stock information...</div>
         <div id="productsList">Loading products...</div>
+
+        <div class="pagination">
+          <button id="previousPage" class="secondary">Previous</button>
+          <span id="pageInfo">Page 1</span>
+          <button id="nextPage" class="secondary">Next</button>
+        </div>
       </div>
     </section>
 
@@ -133,61 +162,63 @@ label{font-weight:bold;font-size:14px}
 <script>
 const SUPABASE_URL = "https://mvrvbpdfoqvsyuibrwzs.supabase.co";
 const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd";
-
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const loginPanel = document.getElementById("loginPanel");
 const dashboard = document.getElementById("dashboard");
 const messageBox = document.getElementById("message");
 
 let editingProductId = null;
+let productsCache = [];
+let currentPage = 1;
+const pageSize = 10;
+let currentImageUrl = null;
 
-function showMessage(message, type = "success") {
-  messageBox.textContent = message;
-  messageBox.className = type;
-  messageBox.style.display = "block";
+function showMessage(message,type="success"){
+  messageBox.textContent=message;
+  messageBox.className=type;
+  messageBox.style.display="block";
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function clearMessage() {
-  messageBox.style.display = "none";
-  messageBox.textContent = "";
+function clearMessage(){
+  messageBox.style.display="none";
+  messageBox.textContent="";
 }
 
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, character => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[character]);
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
 }
 
-function money(value) {
-  return "₦" + Number(value || 0).toLocaleString("en-NG");
+function money(value){
+  return "₦"+Number(value||0).toLocaleString("en-NG");
 }
 
-async function verifyAdmin() {
-  const {data:{session}} = await db.auth.getSession();
+function setLoggedOut(){
+  loginPanel.classList.remove("hidden");
+  dashboard.classList.add("hidden");
+}
 
-  if (!session) {
-    loginPanel.classList.remove("hidden");
-    dashboard.classList.add("hidden");
+async function verifyAdmin(){
+  const {data:{session}}=await db.auth.getSession();
+
+  if(!session){
+    setLoggedOut();
     return false;
   }
 
-  const {data,error} = await db
+  const {data,error}=await db
     .from("admin_users")
     .select("role")
     .eq("user_id",session.user.id)
     .maybeSingle();
 
-  if (error || !data || data.role !== "admin") {
+  if(error || !data || data.role!=="admin"){
     await db.auth.signOut();
+    setLoggedOut();
     showMessage("This account is not authorised as an administrator.","error");
-    loginPanel.classList.remove("hidden");
-    dashboard.classList.add("hidden");
     return false;
   }
 
@@ -199,35 +230,44 @@ async function verifyAdmin() {
   return true;
 }
 
+db.auth.onAuthStateChange((event)=>{
+  if(event==="SIGNED_OUT"){
+    setLoggedOut();
+  }
+});
+
 document.getElementById("loginForm").addEventListener("submit",async event=>{
   event.preventDefault();
   clearMessage();
 
-  const button = document.getElementById("loginButton");
-  button.disabled = true;
-  button.textContent = "Logging in...";
+  const button=document.getElementById("loginButton");
+  button.disabled=true;
+  button.textContent="Logging in...";
 
-  try {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+  try{
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value;
 
-    const {error} = await db.auth.signInWithPassword({email,password});
-    if (error) throw error;
+    const {error}=await db.auth.signInWithPassword({email,password});
+    if(error) throw error;
 
-    const success = await verifyAdmin();
-    if (success) showMessage("Admin login successful.");
-  } catch(error) {
-    showMessage(error.message || "Login failed.","error");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Login";
+    const success=await verifyAdmin();
+    if(success) showMessage("Admin login successful.");
+  }catch(error){
+    showMessage(error.message||"Login failed.","error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Login";
   }
 });
 
 document.getElementById("logoutButton").addEventListener("click",async()=>{
-  await db.auth.signOut();
-  loginPanel.classList.remove("hidden");
-  dashboard.classList.add("hidden");
+  const {error}=await db.auth.signOut();
+  if(error){
+    showMessage(error.message,"error");
+    return;
+  }
+  setLoggedOut();
   showMessage("You have logged out.");
 });
 
@@ -235,116 +275,226 @@ document.querySelectorAll(".tab").forEach(button=>{
   button.addEventListener("click",()=>{
     document.querySelectorAll(".tab").forEach(tab=>tab.classList.remove("active"));
     button.classList.add("active");
-
     document.getElementById("productsSection").classList.add("hidden");
     document.getElementById("ordersSection").classList.add("hidden");
     document.getElementById(button.dataset.tab).classList.remove("hidden");
   });
 });
 
-async function loadProducts() {
-  const list = document.getElementById("productsList");
-  list.textContent = "Loading products...";
+async function loadProducts(){
+  const list=document.getElementById("productsList");
+  list.textContent="Loading products...";
 
-  const {data,error} = await db
+  const {data,error}=await db
     .from("products")
     .select("*")
     .order("created_at",{ascending:false});
 
-  if (error) {
-    list.textContent = "Could not load products: " + error.message;
+  if(error){
+    list.textContent="Could not load products: "+error.message;
     return;
   }
 
-  if (!data || data.length === 0) {
-    list.textContent = "No products found. Add your first product above.";
-    return;
-  }
-
-  list.innerHTML = data.map(product=>`
-    <div class="card">
-      ${product.image_url ? `<img src="${escapeHTML(product.image_url)}" alt="">` : ""}
-      <h4>${escapeHTML(product.name)}</h4>
-      <p>${escapeHTML(product.category || "Uncategorised")}</p>
-      <p><strong>${money(product.price)}</strong></p>
-      <p class="muted">${escapeHTML(product.description || "")}</p>
-      <p class="status">${product.is_available ? "Available on website" : "Hidden from website"}</p>
-      <button data-edit="${escapeHTML(product.id)}">Edit</button>
-      <button class="danger" data-delete="${escapeHTML(product.id)}">Delete</button>
-      <div style="clear:both"></div>
-    </div>
-  `).join("");
-
-  list.querySelectorAll("[data-edit]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      const product = data.find(item=>String(item.id) === button.dataset.edit);
-      if (product) editProduct(product);
-    });
-  });
-
-  list.querySelectorAll("[data-delete]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      deleteProduct(button.dataset.delete);
-    });
-  });
+  productsCache=data||[];
+  currentPage=1;
+  updateCategoryFilter();
+  renderProducts();
 }
 
-function editProduct(product) {
-  editingProductId = product.id;
+function updateCategoryFilter(){
+  const select=document.getElementById("categoryFilter");
+  const previous=select.value;
+  const categories=[...new Set(productsCache.map(p=>p.category).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b));
 
-  document.getElementById("productName").value = product.name || "";
-  document.getElementById("productDescription").value = product.description || "";
-  document.getElementById("productCategory").value = product.category || "";
-  document.getElementById("productPrice").value = product.price || "";
-  document.getElementById("productAvailable").checked = !!product.is_available;
-  document.getElementById("productImage").value = "";
+  select.innerHTML='<option value="">All categories</option>'+
+    categories.map(category=>
+      `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`
+    ).join("");
 
-  document.getElementById("productFormTitle").textContent = "Edit Product";
-  document.getElementById("saveProductButton").textContent = "Update Product";
+  if(categories.includes(previous)) select.value=previous;
+}
+
+function renderProducts(){
+  const list=document.getElementById("productsList");
+  const search=document.getElementById("productSearch").value.trim().toLowerCase();
+  const category=document.getElementById("categoryFilter").value;
+
+  const filtered=productsCache.filter(product=>{
+    const matchesSearch=
+      String(product.name||"").toLowerCase().includes(search) ||
+      String(product.description||"").toLowerCase().includes(search);
+
+    const matchesCategory=!category || product.category===category;
+    return matchesSearch && matchesCategory;
+  });
+
+  const lowStock=productsCache.filter(p=>
+    p.fulfillment_type==="stock" &&
+    Number(p.stock_quantity)<=Number(p.low_stock_alert)
+  ).length;
+
+  document.getElementById("stockSummary").textContent=
+    `${productsCache.length} products total · ${lowStock} stocked products at or below their warning level`;
+
+  const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
+  if(currentPage>totalPages) currentPage=totalPages;
+
+  const start=(currentPage-1)*pageSize;
+  const visible=filtered.slice(start,start+pageSize);
+
+  if(!filtered.length){
+    list.textContent="No matching products found.";
+  }else{
+    list.innerHTML=visible.map(product=>{
+      const isStock=product.fulfillment_type==="stock";
+      const quantity=Number(product.stock_quantity||0);
+      const alert=Number(product.low_stock_alert||0);
+      const low=isStock && quantity<=alert;
+
+      return `
+        <div class="card">
+          ${product.image_url?`<img src="${escapeHTML(product.image_url)}" alt="">`:""}
+          <h4>${escapeHTML(product.name)}</h4>
+          <p>${escapeHTML(product.category||"Uncategorised")}</p>
+          <p><strong>${money(product.price)}</strong></p>
+          <p class="muted">${escapeHTML(product.description||"")}</p>
+          <p><strong>Fulfilment:</strong> ${isStock?"In Stock":"Order on Request"}</p>
+          <p><strong>Quantity:</strong> ${isStock?quantity:"Supplier sourced"}</p>
+          ${isStock?`<p class="${low?"warning":"good"}">${low?"Low-stock warning":"Stock level OK"} · Alert at ${alert}</p>`:""}
+          <p class="status">${product.is_available?"Visible on website":"Hidden from website"}</p>
+          <button data-edit="${escapeHTML(product.id)}">Edit</button>
+          <button class="danger" data-delete="${escapeHTML(product.id)}">Delete</button>
+          <div style="clear:both"></div>
+        </div>
+      `;
+    }).join("");
+
+    list.querySelectorAll("[data-edit]").forEach(button=>{
+      button.addEventListener("click",()=>{
+        const product=productsCache.find(p=>String(p.id)===button.dataset.edit);
+        if(product) editProduct(product);
+      });
+    });
+
+    list.querySelectorAll("[data-delete]").forEach(button=>{
+      button.addEventListener("click",()=>{
+        deleteProduct(button.dataset.delete);
+      });
+    });
+  }
+
+  document.getElementById("pageInfo").textContent=
+    `Page ${currentPage} of ${totalPages} · ${filtered.length} products`;
+
+  document.getElementById("previousPage").disabled=currentPage<=1;
+  document.getElementById("nextPage").disabled=currentPage>=totalPages;
+}
+
+document.getElementById("productSearch").addEventListener("input",()=>{
+  currentPage=1;
+  renderProducts();
+});
+
+document.getElementById("categoryFilter").addEventListener("change",()=>{
+  currentPage=1;
+  renderProducts();
+});
+
+document.getElementById("previousPage").addEventListener("click",()=>{
+  if(currentPage>1){
+    currentPage--;
+    renderProducts();
+  }
+});
+
+document.getElementById("nextPage").addEventListener("click",()=>{
+  currentPage++;
+  renderProducts();
+});
+
+function editProduct(product){
+  editingProductId=product.id;
+  currentImageUrl=product.image_url||null;
+
+  document.getElementById("productName").value=product.name||"";
+  document.getElementById("productDescription").value=product.description||"";
+  document.getElementById("productCategory").value=product.category||"";
+  document.getElementById("productPrice").value=product.price||"";
+  document.getElementById("fulfillmentType").value=product.fulfillment_type||"stock";
+  document.getElementById("stockQuantity").value=product.stock_quantity??0;
+  document.getElementById("lowStockAlert").value=product.low_stock_alert??5;
+  document.getElementById("productAvailable").checked=!!product.is_available;
+  document.getElementById("productImage").value="";
+
+  document.getElementById("productFormTitle").textContent="Edit Product";
+  document.getElementById("saveProductButton").textContent="Update Product";
   document.getElementById("cancelEditButton").classList.remove("hidden");
 
   document.getElementById("productForm").scrollIntoView({behavior:"smooth"});
 }
 
-function resetProductForm() {
-  editingProductId = null;
+function resetProductForm(){
+  editingProductId=null;
+  currentImageUrl=null;
   document.getElementById("productForm").reset();
-  document.getElementById("productAvailable").checked = true;
-  document.getElementById("productFormTitle").textContent = "Add New Product";
-  document.getElementById("saveProductButton").textContent = "Save Product";
+  document.getElementById("productAvailable").checked=true;
+  document.getElementById("stockQuantity").value=0;
+  document.getElementById("lowStockAlert").value=5;
+  document.getElementById("fulfillmentType").value="stock";
+  document.getElementById("productFormTitle").textContent="Add New Product";
+  document.getElementById("saveProductButton").textContent="Save Product";
   document.getElementById("cancelEditButton").classList.add("hidden");
 }
 
 document.getElementById("cancelEditButton").addEventListener("click",resetProductForm);
 
-async function uploadProductImage(file) {
-  if (!file) return null;
+function storagePathFromUrl(url){
+  if(!url) return null;
 
-  const allowedTypes = ["image/jpeg","image/png","image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error("Please choose a JPG, PNG or WebP image.");
+  const marker="/storage/v1/object/public/product-images/";
+  const index=url.indexOf(marker);
+
+  if(index===-1) return null;
+
+  try{
+    return decodeURIComponent(url.substring(index+marker.length).split("?")[0]);
+  }catch{
+    return null;
+  }
+}
+
+async function removeOldImage(url){
+  const path=storagePathFromUrl(url);
+  if(!path) return;
+
+  const {error}=await db.storage.from("product-images").remove([path]);
+  if(error) console.warn("Old image cleanup failed:",error.message);
+}
+
+async function uploadProductImage(file){
+  if(!file) return null;
+
+  const allowed=["image/jpeg","image/png","image/webp"];
+  if(!allowed.includes(file.type)){
+    throw new Error("Choose a JPG, PNG or WebP image.");
   }
 
-  if (file.size > 5 * 1024 * 1024) {
+  if(file.size>5*1024*1024){
     throw new Error("Image must be smaller than 5 MB.");
   }
 
-  const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"");
-  const path = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + extension;
+  const extension=file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=Date.now()+"-"+Math.random().toString(36).slice(2)+"."+extension;
 
-  const {error} = await db.storage
-    .from("product-images")
-    .upload(path,file,{
-      upsert:false,
-      contentType:file.type
-    });
+  const {error}=await db.storage.from("product-images").upload(path,file,{
+    upsert:false,
+    contentType:file.type
+  });
 
-  if (error) throw error;
+  if(error) throw error;
 
-  const {data} = db.storage
-    .from("product-images")
-    .getPublicUrl(path);
-
+  const {data}=db.storage.from("product-images").getPublicUrl(path);
   return data.publicUrl;
 }
 
@@ -352,189 +502,98 @@ document.getElementById("productForm").addEventListener("submit",async event=>{
   event.preventDefault();
   clearMessage();
 
-  const button = document.getElementById("saveProductButton");
-  button.disabled = true;
-  button.textContent = "Saving...";
+  const button=document.getElementById("saveProductButton");
+  button.disabled=true;
+  button.textContent="Saving...";
 
-  try {
-    const name = document.getElementById("productName").value.trim();
-    const description = document.getElementById("productDescription").value.trim();
-    const category = document.getElementById("productCategory").value.trim();
-    const price = Number(document.getElementById("productPrice").value);
-    const is_available = document.getElementById("productAvailable").checked;
-    const file = document.getElementById("productImage").files[0];
+  let uploadedImageUrl=null;
 
-    if (!name || !category || !Number.isFinite(price) || price < 0) {
+  try{
+    const name=document.getElementById("productName").value.trim();
+    const description=document.getElementById("productDescription").value.trim();
+    const category=document.getElementById("productCategory").value.trim();
+    const price=Number(document.getElementById("productPrice").value);
+    const fulfillment_type=document.getElementById("fulfillmentType").value;
+    const stock_quantity=Number(document.getElementById("stockQuantity").value);
+    const low_stock_alert=Number(document.getElementById("lowStockAlert").value);
+    const is_available=document.getElementById("productAvailable").checked;
+    const file=document.getElementById("productImage").files[0];
+
+    if(!name || !category || !Number.isFinite(price) || price<0){
       throw new Error("Enter a product name, category and valid price.");
     }
 
-    let image_url = null;
-
-    if (file) {
-      image_url = await uploadProductImage(file);
-    } else if (editingProductId !== null) {
-      const {data,error} = await db
-        .from("products")
-        .select("image_url")
-        .eq("id",editingProductId)
-        .single();
-
-      if (error) throw error;
-      image_url = data.image_url;
+    if(!Number.isInteger(stock_quantity) || stock_quantity<0 ||
+       !Number.isInteger(low_stock_alert) || low_stock_alert<0){
+      throw new Error("Stock quantity and warning level must be whole numbers of zero or more.");
     }
 
-    const productData = {
+    let image_url=currentImageUrl;
+
+    if(file){
+      uploadedImageUrl=await uploadProductImage(file);
+      image_url=uploadedImageUrl;
+    }
+
+    const productData={
       name,
       description,
       category,
       price,
       image_url,
-      is_available
+      is_available,
+      fulfillment_type,
+      stock_quantity,
+      low_stock_alert
     };
 
     let result;
 
-    if (editingProductId !== null) {
-      result = await db
-        .from("products")
+    if(editingProductId!==null){
+      result=await db.from("products")
         .update(productData)
         .eq("id",editingProductId);
-    } else {
-      result = await db
-        .from("products")
-        .insert(productData);
+    }else{
+      result=await db.from("products").insert(productData);
     }
 
-    if (result.error) throw result.error;
+    if(result.error) throw result.error;
+
+    if(file && currentImageUrl && currentImageUrl!==image_url){
+      await removeOldImage(currentImageUrl);
+    }
 
     resetProductForm();
     await loadProducts();
     showMessage("Product saved successfully.");
-  } catch(error) {
-    showMessage(error.message || "Could not save product.","error");
-  } finally {
-    button.disabled = false;
-    button.textContent = editingProductId !== null ? "Update Product" : "Save Product";
+  }catch(error){
+    if(uploadedImageUrl) await removeOldImage(uploadedImageUrl);
+    showMessage(error.message||"Could not save product.","error");
+  }finally{
+    button.disabled=false;
+    button.textContent=editingProductId!==null?"Update Product":"Save Product";
   }
 });
 
-async function deleteProduct(id) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
+async function deleteProduct(id){
+  const product=productsCache.find(p=>String(p.id)===String(id));
+  if(!product) return;
 
-  const {error} = await db
-    .from("products")
-    .delete()
-    .eq("id",id);
+  if(!confirm("Delete "+product.name+" from the catalogue?")) return;
 
-  if (error) {
+  const {error}=await db.from("products").delete().eq("id",id);
+
+  if(error){
     showMessage(error.message,"error");
     return;
   }
+
+  if(product.image_url) await removeOldImage(product.image_url);
 
   await loadProducts();
   showMessage("Product deleted.");
 }
 
-async function loadOrders() {
-  const list = document.getElementById("ordersList");
-  list.textContent = "Loading orders...";
-
-  const {data:orders,error} = await db
-    .from("orders")
-    .select("id,customer_name,customer_phone,delivery_address,notes,total,status,created_at")
-    .order("created_at",{ascending:false});
-
-  if (error) {
-    list.textContent = "Could not load orders: " + error.message;
-    return;
-  }
-
-  if (!orders || orders.length === 0) {
-    list.textContent = "No customer orders yet.";
-    return;
-  }
-
-  list.innerHTML = orders.map(order=>`
-    <div class="card">
-      <h4>Order #${escapeHTML(order.id)}</h4>
-      <p><strong>Customer:</strong> ${escapeHTML(order.customer_name)}</p>
-      <p><strong>Phone:</strong> ${escapeHTML(order.customer_phone)}</p>
-      <p><strong>Delivery address:</strong> ${escapeHTML(order.delivery_address)}</p>
-      <p><strong>Notes:</strong> ${escapeHTML(order.notes || "None")}</p>
-      <p><strong>Total:</strong> ${money(order.total)}</p>
-      <p><strong>Date:</strong> ${escapeHTML(new Date(order.created_at).toLocaleString())}</p>
-      <p><strong>Items:</strong></p>
-      <div id="items-${escapeHTML(order.id)}" class="muted">Loading items...</div>
-      <label>Order status</label>
-      <select data-status="${escapeHTML(order.id)}">
-        ${["pending","confirmed","processing","dispatched","delivered","cancelled"].map(status=>`
-          <option value="${status}" ${String(order.status).toLowerCase()===status ? "selected" : ""}>${status.charAt(0).toUpperCase()+status.slice(1)}</option>
-        `).join("")}
-      </select>
-      <button data-update-status="${escapeHTML(order.id)}">Update Status</button>
-    </div>
-  `).join("");
-
-  for (const order of orders) {
-    loadOrderItems(order.id);
-  }
-
-  list.querySelectorAll("[data-update-status]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      updateOrderStatus(button.dataset.updateStatus);
-    });
-  });
-}
-
-async function loadOrderItems(orderId) {
-  const target = document.getElementById("items-" + orderId);
-  if (!target) return;
-
-  const {data,error} = await db
-    .from("order_items")
-    .select("product_name,quantity,unit_price,subtotal")
-    .eq("order_id",orderId);
-
-  if (error) {
-    target.textContent = "Could not load order items.";
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    target.textContent = "No items recorded.";
-    return;
-  }
-
-  target.innerHTML = data.map(item=>`
-    <p>${escapeHTML(item.product_name)} × ${escapeHTML(item.quantity)}
-    — ${money(item.subtotal)}</p>
-  `).join("");
-}
-
-async function updateOrderStatus(orderId) {
-  const select = document.querySelector(`[data-status="${CSS.escape(String(orderId))}"]`);
-  if (!select) return;
-
-  const newStatus = select.value;
-
-  const {error} = await db
-    .from("orders")
-    .update({status:newStatus})
-    .eq("id",orderId);
-
-  if (error) {
-    showMessage("Status update failed: " + error.message,"error");
-    return;
-  }
-
-  showMessage("Order status updated.");
-  await loadOrders();
-}
-
-document.getElementById("refreshProducts").addEventListener("click",loadProducts);
-document.getElementById("refreshOrders").addEventListener("click",loadOrders);
-
-verifyAdmin();
-</script>
-</body>
-</html>
+async function loadOrders(){
+  const list=document.getElementById("ordersList");
+  list.textContent="Loading order
