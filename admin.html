@@ -3,81 +3,165 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BIGVEE Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIGVEE Medical Stores | Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f1f5f9;font-family:Arial,sans-serif;color:#172b45}
-header{background:#123c69;color:white;padding:20px}
+body{margin:0;background:#f3f6fa;color:#172033;font-family:Arial,sans-serif}
+header{background:#082c4c;color:white;padding:18px}
 header h2{margin:0}
-main{max-width:950px;margin:25px auto;padding:15px}
-.panel,.order{background:white;border-radius:12px;padding:18px;margin-bottom:15px;box-shadow:0 3px 12px #0000000b}
-input,button,select{width:100%;padding:12px;margin-top:10px;border-radius:7px;border:1px solid #ccd5df;font-size:15px}
-button{background:#123c69;color:white;border:0;font-weight:bold;cursor:pointer}
-button.secondary{background:#64748b}
-button:disabled{opacity:.5}
-.hidden{display:none}
+header p{margin:6px 0 0;color:#d5e7f5}
+main{max-width:1100px;margin:auto;padding:16px}
+.panel{background:white;padding:18px;border-radius:12px;margin:15px 0;box-shadow:0 2px 10px #0000000b}
+h3{margin-top:0;color:#082c4c}
+input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #ccd5df;border-radius:7px;font-size:15px}
+textarea{min-height:80px}
+button{border:0;border-radius:7px;padding:11px 15px;background:#0876bd;color:white;font-weight:bold;cursor:pointer;margin:4px}
+button.secondary{background:#526477}
+button.danger{background:#c62828}
+button:disabled{opacity:.6}
+.hidden{display:none!important}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.tab.active{background:#082c4c}
+.card{border:1px solid #e0e6ed;border-radius:10px;padding:14px;margin:12px 0}
+.card img{width:85px;height:85px;object-fit:contain;background:#f5f7f9;border-radius:7px;float:right}
 .muted{color:#64748b;font-size:13px}
-.order h3{margin:0 0 8px}
+.status{font-weight:bold;color:#0876bd}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .row>*{flex:1;min-width:130px}
-.status{font-weight:bold;color:#123c69}
-#message{white-space:pre-wrap;color:#b42318}
-#login{max-width:390px;margin:55px auto}
-#login h2{text-align:center;color:#123c69}
-.item{border-top:1px solid #e2e8f0;padding:9px 0;font-size:14px}
+.notice{padding:10px;background:#edf6ff;border-radius:7px;margin:10px 0}
+label{font-weight:bold;font-size:14px}
+#message{padding:10px;border-radius:7px;margin:10px 0;display:none}
+#message.error{display:block;background:#ffeded;color:#a00000}
+#message.success{display:block;background:#e7f8ec;color:#17652c}
+@media(max-width:600px){main{padding:10px}.panel{padding:14px}}
 </style>
 </head>
 <body>
 
 <header>
-  <h2>BIGVEE MEDICAL STORES</h2>
+  <h2>BIGVEE Medical Stores</h2>
   <p>Administrator Dashboard</p>
 </header>
 
 <main>
-  <section id="login" class="panel">
-    <h2>Administrator Login</h2>
+  <div id="message"></div>
+
+  <section id="loginPanel" class="panel">
+    <h3>Admin Login</h3>
     <form id="loginForm">
-      <input id="email" type="email" placeholder="Admin email" required>
-      <input id="password" type="password" placeholder="Password" required>
-      <button type="submit">LOGIN</button>
+      <label>Email address</label>
+      <input id="email" type="email" required placeholder="Admin email">
+      <label>Password</label>
+      <input id="password" type="password" required placeholder="Password">
+      <button id="loginButton" type="submit">Login</button>
     </form>
-    <p id="loginMessage" class="muted"></p>
   </section>
 
   <section id="dashboard" class="hidden">
     <div class="panel">
       <div class="row">
         <div>
-          <h2>Orders</h2>
-          <p class="muted">Manage customer orders</p>
+          <h3>Welcome, BIGVEE Admin</h3>
+          <p class="muted">Manage your products and customer orders.</p>
         </div>
-        <div>
-          <button id="refreshBtn">REFRESH ORDERS</button>
-          <button id="logoutBtn" class="secondary">LOG OUT</button>
+        <div style="text-align:right">
+          <button class="secondary" id="logoutButton">Log out</button>
         </div>
       </div>
-      <h3 id="orderCount">Loading orders...</h3>
-      <p id="dashboardMessage" class="muted"></p>
     </div>
-    <div id="orders"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="productsSection">Products</button>
+      <button class="tab" data-tab="ordersSection">Customer Orders</button>
+    </div>
+
+    <section id="productsSection">
+      <div class="panel">
+        <h3 id="productFormTitle">Add New Product</h3>
+        <form id="productForm">
+          <label>Product name</label>
+          <input id="productName" required placeholder="Example: Hospital Bed">
+
+          <label>Description</label>
+          <textarea id="productDescription" placeholder="Enter product details"></textarea>
+
+          <label>Category</label>
+          <input id="productCategory" required placeholder="Example: Hospital Beds">
+
+          <label>Price (₦)</label>
+          <input id="productPrice" type="number" min="0" step="0.01" required placeholder="Enter price">
+
+          <label>Product image</label>
+          <input id="productImage" type="file" accept="image/png,image/jpeg,image/webp">
+          <p class="muted">Choose a JPG, PNG or WebP image. You can leave this empty when editing to keep the existing image.</p>
+
+          <label>
+            <input id="productAvailable" type="checkbox" checked style="width:auto;margin-right:7px">
+            Product is available on the website
+          </label>
+
+          <div style="margin-top:15px">
+            <button id="saveProductButton" type="submit">Save Product</button>
+            <button id="cancelEditButton" class="secondary hidden" type="button">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="row">
+          <h3>Product Catalogue</h3>
+          <button id="refreshProducts" class="secondary">Refresh Products</button>
+        </div>
+        <div id="productsList">Loading products...</div>
+      </div>
+    </section>
+
+    <section id="ordersSection" class="hidden">
+      <div class="panel">
+        <div class="row">
+          <h3>Customer Orders</h3>
+          <button id="refreshOrders" class="secondary">Refresh Orders</button>
+        </div>
+        <div id="ordersList">Loading orders...</div>
+      </div>
+    </section>
   </section>
 </main>
 
 <script>
-const db = window.supabase.createClient(
-  "https://mvrvbpdfoqvsyuibrwzs.supabase.co",
-  "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd"
-);
+const SUPABASE_URL = "https://mvrvbpdfoqvsyuibrwzs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_deplKvStHA5PrK5oXaFlCA_TX_L-DEd";
 
-const $ = id => document.getElementById(id);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function safe(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[char]);
+const loginPanel = document.getElementById("loginPanel");
+const dashboard = document.getElementById("dashboard");
+const messageBox = document.getElementById("message");
+
+let editingProductId = null;
+
+function showMessage(message, type = "success") {
+  messageBox.textContent = message;
+  messageBox.className = type;
+  messageBox.style.display = "block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function clearMessage() {
+  messageBox.style.display = "none";
+  messageBox.textContent = "";
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[character]);
 }
 
 function money(value) {
@@ -87,197 +171,370 @@ function money(value) {
 async function verifyAdmin() {
   const {data:{session}} = await db.auth.getSession();
 
-  if (!session) return false;
-
-  const {data:admin,error} = await db
-    .from("admin_users")
-    .select("role")
-    .eq("user_id",session.user.id)
-    .eq("role","admin")
-    .maybeSingle();
-
-  if (error || !admin) {
-    await db.auth.signOut();
+  if (!session) {
+    loginPanel.classList.remove("hidden");
+    dashboard.classList.add("hidden");
     return false;
   }
 
+  const {data,error} = await db
+    .from("admin_users")
+    .select("role")
+    .eq("user_id",session.user.id)
+    .maybeSingle();
+
+  if (error || !data || data.role !== "admin") {
+    await db.auth.signOut();
+    showMessage("This account is not authorised as an administrator.","error");
+    loginPanel.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    return false;
+  }
+
+  loginPanel.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+
+  await loadProducts();
+  await loadOrders();
   return true;
 }
 
-async function showDashboard() {
-  const allowed = await verifyAdmin();
-
-  if (!allowed) {
-    $("dashboard").classList.add("hidden");
-    $("login").classList.remove("hidden");
-    return;
-  }
-
-  $("login").classList.add("hidden");
-  $("dashboard").classList.remove("hidden");
-  await loadOrders();
-}
-
-$("loginForm").addEventListener("submit", async event => {
+document.getElementById("loginForm").addEventListener("submit",async event=>{
   event.preventDefault();
-  $("loginMessage").textContent = "Checking login...";
+  clearMessage();
 
-  const {error} = await db.auth.signInWithPassword({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
+  const button = document.getElementById("loginButton");
+  button.disabled = true;
+  button.textContent = "Logging in...";
 
-  if (error) {
-    $("loginMessage").textContent = error.message;
-    return;
+  try {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const {error} = await db.auth.signInWithPassword({email,password});
+    if (error) throw error;
+
+    const success = await verifyAdmin();
+    if (success) showMessage("Admin login successful.");
+  } catch(error) {
+    showMessage(error.message || "Login failed.","error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Login";
   }
-
-  const allowed = await verifyAdmin();
-
-  if (!allowed) {
-    $("loginMessage").textContent =
-      "This account is not an authorized administrator.";
-    return;
-  }
-
-  await showDashboard();
 });
 
-async function loadOrders() {
-  $("dashboardMessage").textContent = "Loading orders...";
-  $("orderCount").textContent = "Loading...";
-  $("orders").innerHTML = "";
+document.getElementById("logoutButton").addEventListener("click",async()=>{
+  await db.auth.signOut();
+  loginPanel.classList.remove("hidden");
+  dashboard.classList.add("hidden");
+  showMessage("You have logged out.");
+});
+
+document.querySelectorAll(".tab").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(tab=>tab.classList.remove("active"));
+    button.classList.add("active");
+
+    document.getElementById("productsSection").classList.add("hidden");
+    document.getElementById("ordersSection").classList.add("hidden");
+    document.getElementById(button.dataset.tab).classList.remove("hidden");
+  });
+});
+
+async function loadProducts() {
+  const list = document.getElementById("productsList");
+  list.textContent = "Loading products...";
 
   const {data,error} = await db
+    .from("products")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if (error) {
+    list.textContent = "Could not load products: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.textContent = "No products found. Add your first product above.";
+    return;
+  }
+
+  list.innerHTML = data.map(product=>`
+    <div class="card">
+      ${product.image_url ? `<img src="${escapeHTML(product.image_url)}" alt="">` : ""}
+      <h4>${escapeHTML(product.name)}</h4>
+      <p>${escapeHTML(product.category || "Uncategorised")}</p>
+      <p><strong>${money(product.price)}</strong></p>
+      <p class="muted">${escapeHTML(product.description || "")}</p>
+      <p class="status">${product.is_available ? "Available on website" : "Hidden from website"}</p>
+      <button data-edit="${escapeHTML(product.id)}">Edit</button>
+      <button class="danger" data-delete="${escapeHTML(product.id)}">Delete</button>
+      <div style="clear:both"></div>
+    </div>
+  `).join("");
+
+  list.querySelectorAll("[data-edit]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const product = data.find(item=>String(item.id) === button.dataset.edit);
+      if (product) editProduct(product);
+    });
+  });
+
+  list.querySelectorAll("[data-delete]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      deleteProduct(button.dataset.delete);
+    });
+  });
+}
+
+function editProduct(product) {
+  editingProductId = product.id;
+
+  document.getElementById("productName").value = product.name || "";
+  document.getElementById("productDescription").value = product.description || "";
+  document.getElementById("productCategory").value = product.category || "";
+  document.getElementById("productPrice").value = product.price || "";
+  document.getElementById("productAvailable").checked = !!product.is_available;
+  document.getElementById("productImage").value = "";
+
+  document.getElementById("productFormTitle").textContent = "Edit Product";
+  document.getElementById("saveProductButton").textContent = "Update Product";
+  document.getElementById("cancelEditButton").classList.remove("hidden");
+
+  document.getElementById("productForm").scrollIntoView({behavior:"smooth"});
+}
+
+function resetProductForm() {
+  editingProductId = null;
+  document.getElementById("productForm").reset();
+  document.getElementById("productAvailable").checked = true;
+  document.getElementById("productFormTitle").textContent = "Add New Product";
+  document.getElementById("saveProductButton").textContent = "Save Product";
+  document.getElementById("cancelEditButton").classList.add("hidden");
+}
+
+document.getElementById("cancelEditButton").addEventListener("click",resetProductForm);
+
+async function uploadProductImage(file) {
+  if (!file) return null;
+
+  const allowedTypes = ["image/jpeg","image/png","image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Please choose a JPG, PNG or WebP image.");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Image must be smaller than 5 MB.");
+  }
+
+  const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + extension;
+
+  const {error} = await db.storage
+    .from("product-images")
+    .upload(path,file,{
+      upsert:false,
+      contentType:file.type
+    });
+
+  if (error) throw error;
+
+  const {data} = db.storage
+    .from("product-images")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
+document.getElementById("productForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  clearMessage();
+
+  const button = document.getElementById("saveProductButton");
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const name = document.getElementById("productName").value.trim();
+    const description = document.getElementById("productDescription").value.trim();
+    const category = document.getElementById("productCategory").value.trim();
+    const price = Number(document.getElementById("productPrice").value);
+    const is_available = document.getElementById("productAvailable").checked;
+    const file = document.getElementById("productImage").files[0];
+
+    if (!name || !category || !Number.isFinite(price) || price < 0) {
+      throw new Error("Enter a product name, category and valid price.");
+    }
+
+    let image_url = null;
+
+    if (file) {
+      image_url = await uploadProductImage(file);
+    } else if (editingProductId !== null) {
+      const {data,error} = await db
+        .from("products")
+        .select("image_url")
+        .eq("id",editingProductId)
+        .single();
+
+      if (error) throw error;
+      image_url = data.image_url;
+    }
+
+    const productData = {
+      name,
+      description,
+      category,
+      price,
+      image_url,
+      is_available
+    };
+
+    let result;
+
+    if (editingProductId !== null) {
+      result = await db
+        .from("products")
+        .update(productData)
+        .eq("id",editingProductId);
+    } else {
+      result = await db
+        .from("products")
+        .insert(productData);
+    }
+
+    if (result.error) throw result.error;
+
+    resetProductForm();
+    await loadProducts();
+    showMessage("Product saved successfully.");
+  } catch(error) {
+    showMessage(error.message || "Could not save product.","error");
+  } finally {
+    button.disabled = false;
+    button.textContent = editingProductId !== null ? "Update Product" : "Save Product";
+  }
+});
+
+async function deleteProduct(id) {
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  const {error} = await db
+    .from("products")
+    .delete()
+    .eq("id",id);
+
+  if (error) {
+    showMessage(error.message,"error");
+    return;
+  }
+
+  await loadProducts();
+  showMessage("Product deleted.");
+}
+
+async function loadOrders() {
+  const list = document.getElementById("ordersList");
+  list.textContent = "Loading orders...";
+
+  const {data:orders,error} = await db
     .from("orders")
     .select("id,customer_name,customer_phone,delivery_address,notes,total,status,created_at")
     .order("created_at",{ascending:false});
 
   if (error) {
-    $("dashboardMessage").textContent =
-      "Could not load orders: " + error.message;
-    $("orderCount").textContent = "Orders unavailable";
+    list.textContent = "Could not load orders: " + error.message;
     return;
   }
 
-  $("dashboardMessage").textContent = "";
-  $("orderCount").textContent = "Total orders: " + data.length;
-
-  if (!data.length) {
-    $("orders").innerHTML =
-      '<div class="panel">No orders found yet.</div>';
+  if (!orders || orders.length === 0) {
+    list.textContent = "No customer orders yet.";
     return;
   }
 
-  data.forEach(order => {
-    const card = document.createElement("div");
-    card.className = "order";
+  list.innerHTML = orders.map(order=>`
+    <div class="card">
+      <h4>Order #${escapeHTML(order.id)}</h4>
+      <p><strong>Customer:</strong> ${escapeHTML(order.customer_name)}</p>
+      <p><strong>Phone:</strong> ${escapeHTML(order.customer_phone)}</p>
+      <p><strong>Delivery address:</strong> ${escapeHTML(order.delivery_address)}</p>
+      <p><strong>Notes:</strong> ${escapeHTML(order.notes || "None")}</p>
+      <p><strong>Total:</strong> ${money(order.total)}</p>
+      <p><strong>Date:</strong> ${escapeHTML(new Date(order.created_at).toLocaleString())}</p>
+      <p><strong>Items:</strong></p>
+      <div id="items-${escapeHTML(order.id)}" class="muted">Loading items...</div>
+      <label>Order status</label>
+      <select data-status="${escapeHTML(order.id)}">
+        ${["pending","confirmed","processing","dispatched","delivered","cancelled"].map(status=>`
+          <option value="${status}" ${String(order.status).toLowerCase()===status ? "selected" : ""}>${status.charAt(0).toUpperCase()+status.slice(1)}</option>
+        `).join("")}
+      </select>
+      <button data-update-status="${escapeHTML(order.id)}">Update Status</button>
+    </div>
+  `).join("");
 
-    const date = order.created_at
-      ? new Date(order.created_at).toLocaleString()
-      : "Date unavailable";
+  for (const order of orders) {
+    loadOrderItems(order.id);
+  }
 
-    card.innerHTML = `
-      <h3>Order #${safe(order.id)}</h3>
-      <p><b>Customer:</b> ${safe(order.customer_name)}</p>
-      <p><b>Phone:</b> ${safe(order.customer_phone)}</p>
-      <p><b>Delivery address:</b> ${safe(order.delivery_address)}</p>
-      <p><b>Total:</b> ${money(order.total)}</p>
-      <p><b>Date:</b> ${safe(date)}</p>
-      <p><b>Notes:</b> ${safe(order.notes || "None")}</p>
-      <p class="status">Current status: ${safe(order.status || "pending")}</p>
-      <div class="item" id="items-${safe(order.id)}">Order items not loaded.</div>
-      <button class="itemsBtn">VIEW ORDER ITEMS</button>
-      <div class="row">
-        <select class="statusSelect">
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="processing">Processing</option>
-          <option value="dispatched">Dispatched</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <button class="updateBtn">UPDATE STATUS</button>
-      </div>
-      <p class="muted result"></p>
-    `;
-
-    const select = card.querySelector(".statusSelect");
-    select.value = order.status || "pending";
-
-    card.querySelector(".itemsBtn").addEventListener("click", async () => {
-      const target = card.querySelector(".item");
-      target.textContent = "Loading order items...";
-
-      const {data:items,error:itemError} = await db
-        .from("order_items")
-        .select("product_name,quantity,unit_price,subtotal")
-        .eq("order_id",order.id);
-
-      if (itemError) {
-        target.textContent = "Could not load items: " + itemError.message;
-        return;
-      }
-
-      if (!items.length) {
-        target.textContent = "No order items found.";
-        return;
-      }
-
-      target.innerHTML = items.map(item => `
-        <div class="item">
-          <b>${safe(item.product_name)}</b><br>
-          Quantity: ${safe(item.quantity)}<br>
-          Unit price: ${money(item.unit_price)}<br>
-          Subtotal: ${money(item.subtotal)}
-        </div>
-      `).join("");
+  list.querySelectorAll("[data-update-status]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      updateOrderStatus(button.dataset.updateStatus);
     });
-
-    card.querySelector(".updateBtn").addEventListener("click", async () => {
-      const result = card.querySelector(".result");
-      const newStatus = select.value;
-
-      if (!confirm("Update this order to " + newStatus + "?")) return;
-
-      result.textContent = "Updating...";
-
-      const {error:updateError} = await db
-        .from("orders")
-        .update({status:newStatus})
-        .eq("id",order.id);
-
-      if (updateError) {
-        result.textContent = "Update failed: " + updateError.message;
-        return;
-      }
-
-      result.textContent = "Order status updated successfully.";
-      card.querySelector(".status").textContent =
-        "Current status: " + newStatus;
-    });
-
-    $("orders").appendChild(card);
   });
 }
 
-$("refreshBtn").addEventListener("click",loadOrders);
+async function loadOrderItems(orderId) {
+  const target = document.getElementById("items-" + orderId);
+  if (!target) return;
 
-$("logoutBtn").addEventListener("click",async () => {
-  await db.auth.signOut();
-  $("dashboard").classList.add("hidden");
-  $("login").classList.remove("hidden");
-  $("loginMessage").textContent = "You have logged out.";
-});
+  const {data,error} = await db
+    .from("order_items")
+    .select("product_name,quantity,unit_price,subtotal")
+    .eq("order_id",orderId);
 
-db.auth.onAuthStateChange((_event,session) => {
-  if (!session) {
-    $("dashboard").classList.add("hidden");
-    $("login").classList.remove("hidden");
+  if (error) {
+    target.textContent = "Could not load order items.";
+    return;
   }
-});
 
-showDashboard();
+  if (!data || data.length === 0) {
+    target.textContent = "No items recorded.";
+    return;
+  }
+
+  target.innerHTML = data.map(item=>`
+    <p>${escapeHTML(item.product_name)} × ${escapeHTML(item.quantity)}
+    — ${money(item.subtotal)}</p>
+  `).join("");
+}
+
+async function updateOrderStatus(orderId) {
+  const select = document.querySelector(`[data-status="${CSS.escape(String(orderId))}"]`);
+  if (!select) return;
+
+  const newStatus = select.value;
+
+  const {error} = await db
+    .from("orders")
+    .update({status:newStatus})
+    .eq("id",orderId);
+
+  if (error) {
+    showMessage("Status update failed: " + error.message,"error");
+    return;
+  }
+
+  showMessage("Order status updated.");
+  await loadOrders();
+}
+
+document.getElementById("refreshProducts").addEventListener("click",loadProducts);
+document.getElementById("refreshOrders").addEventListener("click",loadOrders);
+
+verifyAdmin();
 </script>
 </body>
 </html>
